@@ -3,9 +3,7 @@ import { randomBytes, scrypt } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
-const generateToken = () => {
-  return randomBytes(48).toString('hex');
-};
+const generateToken = () => randomBytes(48).toString('hex');
 
 const verifyPassword = async (password, hashedPassword) => {
   return new Promise((resolve, reject) => {
@@ -20,51 +18,54 @@ const verifyPassword = async (password, hashedPassword) => {
 export default {
   getUserByToken: async (token) => {
     if (!token) return null;
-    return await prisma.usuario.findFirst({
+    return await prisma.usuario.findFirstOrThrow({
       where: { token }
-    });
+    }).catch(() => null);
   },
 
   loginUser: async (username, password) => {
     if (!username || !password) return null;
     
-    const user = await prisma.usuario.findUnique({
-      where: { username }
-    });
+    try {
+      const user = await prisma.usuario.findUniqueOrThrow({
+        where: { username }
+      });
 
-    if (!user) return null;
+      const isValidPassword = await verifyPassword(password, user.password);
+      if (!isValidPassword) return null;
 
-    const isValidPassword = await verifyPassword(password, user.password);
-    if (!isValidPassword) return null;
+      const token = generateToken();
+      
+      const updatedUser = await prisma.usuario.update({
+        where: { id: user.id },
+        data: { token },
+        select: {
+          username: true,
+          name: true,
+          token: true
+        }
+      });
 
-    const token = generateToken();
-    
-    const updatedUser = await prisma.usuario.update({
-      where: { id: user.id },
-      data: { token }
-    });
-
-    return {
-      username: updatedUser.username,
-      name: updatedUser.name,
-      token: updatedUser.token
-    };
+      return updatedUser;
+    } catch (error) {
+      if (error.code === 'P2025') {
+        return null;
+      }
+      throw error;
+    }
   },
 
   logoutUser: async (token) => {
     if (!token) return false;
     
-    const user = await prisma.usuario.findFirst({
-      where: { token }
-    });
-
-    if (!user) return false;
-
-    await prisma.usuario.update({
-      where: { id: user.id },
-      data: { token: null }
-    });
-
-    return true;
+    try {
+      await prisma.usuario.updateMany({
+        where: { token },
+        data: { token: null }
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 };
