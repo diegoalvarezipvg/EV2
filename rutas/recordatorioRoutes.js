@@ -9,7 +9,7 @@ import {
 } from '../controladores/recordatorioController.js';
 import { validarEsquema } from '../esquemas/validacion.js';
 import { recordatorioCreacionSchema, recordatorioActualizacionSchema } from '../esquemas/validacion.js';
-import { verifyAuth } from '../middlewares/auth.js';
+import { verifyAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
