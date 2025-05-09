@@ -33,3 +33,5 @@ export const recordatorioActualizacionSchema = object({
   ),
   important: optional(boolean('El campo importante debe ser un valor booleano')),
 });
+
+export const idSchema = string([minLength(1, 'El ID no puede estar vacío')]);

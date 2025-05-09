@@ -2,7 +2,7 @@ import usuarioRepo from '../repositorios/usuarioRepo.js';
 
 export const login = async (req, res) => {
   const { username, password } = req.validatedBody;
-  
+
   const user = await usuarioRepo.loginUser(username, password);
   if (!user) {
     return res.status(401).json({ error: 'Credenciales inválidas' });

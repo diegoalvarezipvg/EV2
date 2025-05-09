@@ -7,8 +7,8 @@ import {
   actualizarRecordatorio, 
   eliminarRecordatorio 
 } from '../controladores/recordatorioController.js';
-import { validarEsquema } from '../middleware/validacion.js';
-import { recordatorioCreacionSchema, recordatorioActualizacionSchema } from '../esquemas/validacionEsquema.js';
+import { validarBody, validarParams } from '../middleware/validacion.js';
+import { recordatorioCreacionSchema, recordatorioActualizacionSchema, idSchema } from '../esquemas/validacionEsquema.js';
 import { verifyAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -20,15 +20,15 @@ router.use(verifyAuth);
 router.get('/', listarRecordatorios);
 
 // Obtener un recordatorio por su ID
-router.get('/:id', obtenerRecordatorio);
+router.get('/:id', validarParams(idSchema), obtenerRecordatorio);
 
 // Crear un nuevo recordatorio
-router.post('/', validarEsquema(recordatorioCreacionSchema), crearRecordatorio);
+router.post('/', validarBody(recordatorioCreacionSchema), crearRecordatorio);
 
 // Actualizar parcialmente un recordatorio
-router.patch('/:id', validarEsquema(recordatorioActualizacionSchema), actualizarRecordatorio);
+router.patch('/:id', validarParams(idSchema), validarBody(recordatorioActualizacionSchema), actualizarRecordatorio);
 
 // Eliminar un recordatorio
-router.delete('/:id', eliminarRecordatorio);
+router.delete('/:id', validarParams(idSchema), eliminarRecordatorio);
 
 export default router;
