@@ -7,8 +7,8 @@ import {
   actualizarRecordatorio, 
   eliminarRecordatorio 
 } from '../controladores/recordatorioController.js';
-import { validarEsquema } from '../esquemas/validacion.js';
-import { recordatorioCreacionSchema, recordatorioActualizacionSchema } from '../esquemas/validacion.js';
+import { validarEsquema } from '../middleware/validacion.js';
+import { recordatorioCreacionSchema, recordatorioActualizacionSchema } from '../esquemas/validacionEsquema.js';
 import { verifyAuth } from '../middleware/auth.js';
 
 const router = express.Router();
